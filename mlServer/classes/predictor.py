@@ -1,0 +1,53 @@
+import tensorflow as tf
+from PIL import Image
+import numpy as np
+import os
+from classes.gesture import Gesture
+
+class Predictor:
+    model = None
+    data = None
+    history = None
+
+    def __init__(self):
+        # Disable scientific notation for clarity
+        np.set_printoptions(suppress=True)
+
+        # Load Model
+        self.model = tf.keras.models.load_model(os.path.join(os.path.dirname(__file__), "../models/keras_model.h5"))
+
+        # Compile Model
+        self.model.compile(optimizer=tf.keras.optimizers.RMSprop(),
+                loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+                metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
+
+        # Create the array of the right shape to feed into the keras model
+        # The 'length' or number of images you can put into the array is
+        # determined by the first position in the shape tuple, in this case 1.
+        self.data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
+
+        self.history = [None for i in range(20)]
+
+    def predict(self, image):
+        # Make sure to resize all images to 224, 224 otherwise they won't fit in the array
+        #image = image.resize((224, 224))
+        #image = cv2.resize(image, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+        image_array = np.asarray(image)
+
+        # Normalize the image
+        normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
+
+        # Load the image into the array
+        self.data[0] = normalized_image_array
+
+        # run the inference
+        prediction = self.model.predict(self.data, use_multiprocessing=True)
+        print(prediction)
+
+
+        self.history.append(np.argmax(prediction))
+        self.history.pop(0)
+        print(self.history)
+
+        if len(dict.fromkeys(self.history)) == 1:          
+            print(Gesture(self.history[0]))

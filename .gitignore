@@ -1,0 +1,5 @@
+# imageServer
+imageServer/classes/__pycache__/*
+
+# mlServer
+mlServer/classes/__pycache__/*
