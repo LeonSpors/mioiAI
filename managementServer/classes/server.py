@@ -1,9 +1,12 @@
+from classes.request import Request
+
 import socket
 import threading
 
 class Server:
     sock = None
     clients = {}
+    shutdownRequest = False
 
     def __init__(self, addr):
         """Initializes the socket server.
@@ -16,9 +19,13 @@ class Server:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind(addr)
         self.sock.listen(True)
-        self.start()
+        self._start_()
 
-    def start(self):
+    def request(self, request):
+        if request == Request.Shutdown:
+            self.shutdownRequest = True
+
+    def _start_(self):
         """Handles incoming connections.
         """
         thread = threading.Thread(target=self.__incomingConnectionHandler__)
@@ -26,11 +33,11 @@ class Server:
 
     def __incomingConnectionHandler__(self):
         print("Server is listening for clients")
-        while True:
+        while not self.shutdownRequest:
             connection, addr = self.sock.accept()
-            workerThread = threading.Thread(target=self.worker)
+            workerThread = threading.Thread(target=self.__worker__)
             workerThread.start()
             self.clients[connection] = workerThread
 
-    def worker(self):
+    def __worker__(self):
         print("worker")

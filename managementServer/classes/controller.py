@@ -1,4 +1,6 @@
 from classes.server import Server
+from classes.request import Request
+
 import signal
 
 class Controller:
@@ -17,7 +19,7 @@ class Controller:
 
     def onShutdownRequest(self, signal, frame):
         print("Cleaning up...")
-        #self.server.requestShutdown()
+        self.server.request(Request.Shutdown)
         exit(0)  
 
     def register(self, key, value):
