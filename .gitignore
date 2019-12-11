@@ -1,5 +1,10 @@
+.vscode/*
+
 # imageServer
 imageServer/classes/__pycache__/*
 
 # mlServer
 mlServer/classes/__pycache__/*
+
+# managementServer
+managementServer/classes/__pycache__/*
