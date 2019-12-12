@@ -7,6 +7,11 @@ class Controller:
     server = None
     status = {}
 
+    def onShutdownRequest(self, signal, frame):
+        print("Cleaning up...")
+        self.server.request(Request.Shutdown)
+        exit(0)  
+
     def __init__(self):
         super().__init__()
 
@@ -17,10 +22,7 @@ class Controller:
 
         self.server = Server(("localhost", 50000))
 
-    def onShutdownRequest(self, signal, frame):
-        print("Cleaning up...")
-        self.server.request(Request.Shutdown)
-        exit(0)  
+
 
     def register(self, key, value):
         self.status[key] = value
