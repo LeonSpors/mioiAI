@@ -8,6 +8,7 @@ import time
 class Server:
     sock = None
     clients = {}
+    clientTypeConnected = []
     workers = []
     
     data = None
@@ -56,7 +57,6 @@ class Server:
 
             workerThread = threading.Thread(target=self.__worker__, args=(connection,))
             workerThread.start()
-            self.clients[connection] = workerThread
 
     def recvall(self, sock, count):
         # TODO: docstring
@@ -85,6 +85,7 @@ class Server:
         # Find ml client
         client = None
         while client == None:
+            logging.info("lf")
             client = self.clients.get("ml")
             time.sleep(0.1)
 
@@ -92,12 +93,13 @@ class Server:
 
         lastSend = 0
         while True:
-            currLen = len(self.data)
+            datac = self.data
+            currLen = len(datac)
             if lastSend != currLen:
                 logging.info(f"Sent {currLen}")
                 lastSend = currLen
                 client.send((str(lastSend).ljust(16)).encode("ascii"))
-                client.send(data)
+                client.send(datac)
 
     def __worker__(self, client):
         # TODO: Encapsulate inner worker routine.
@@ -117,11 +119,13 @@ class Server:
             riw = threading.Thread(target=self._recvImageWorker_, args=(client,))
             riw.start()
             self.workers.append(riw)
+            self.clients["img"] = client
 
             ew = threading.Thread(target=self._echoWorker_)
             ew.start()
             self.workers.append(ew)
         elif data[0] == "REG" and data[1] == "ml":
+            self.clients["ml"] = client
             logging.debug("Registration complete.")
             pass
         else:
