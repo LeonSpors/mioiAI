@@ -1,5 +1,5 @@
 from classes.client import Client
-#from classes.predictor import Predictor
+from classes.predictor import Predictor
 
 def run():
     predictor = Predictor()
