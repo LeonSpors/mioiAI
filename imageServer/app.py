@@ -10,7 +10,7 @@ def run():
     host = config.get("Client", "Host")
     port = config.get("Client", "Port")
 
-    client = Client(host, port))
+    client = Client(host, port)
     ret = client.connect(3)
 
     if ret is True:
