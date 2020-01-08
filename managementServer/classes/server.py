@@ -35,6 +35,8 @@ class Server:
 
         while not self.shutdownRequest:
             connection, addr = self.sock.accept()
+            connection.settimeout(1)
+            print(connection.gettimeout())
             logging.debug("Connection {0} etablished. Starting worker...".format(addr))
 
             workerThread = threading.Thread(target=self._worker_, args=(connection,))
@@ -44,7 +46,13 @@ class Server:
         # TODO: docstring
         buf = b''
         while count:
-            newbuf = sock.recv(count)
+            newbuf = None
+            try:                
+                newbuf = sock.recv(count)
+            except Exception as err:
+                logging.error(err)
+
+
             if not newbuf:
                 return None
             buf += newbuf
@@ -56,14 +64,17 @@ class Server:
 
         client = self.clients["img"]
 
-        try:
-            while True:
-                length = self.recvall(client, 16)
+        t = threading.currentThread()
+        while getattr(t, "do_run", True):
+            length = self.recvall(client, 16)
+            if length != None:
                 stringData = self.recvall(client, int(length))
+            else:
+                logging.debug("recv image worker stopped")
+                self.clients["img"] = None
+                t.do_run = False
 
-                self.data = stringData
-        except:
-            self.clients["img"] = None
+            self.data = stringData
 
     def _echoWorker_(self):
         # TODO: Clean up
@@ -99,11 +110,13 @@ class Server:
             time.sleep(1)
 
         while True:
+            #print(echoWorkerThread.isAlive())
+
             if echoWorkerThread.isAlive():
                 for c in self.clients:
-                    if c == None:
+                    if self.clients.get(c) == None:
                         logging.debug(f"Stopping echo worker. Reason: {c.getsockname()} connection lost")
-                        echoWorkerThread.stop()        
+                        echoWorkerThread.do_run = False        
             else:
                 if self.clients.get("img") != None and self.clients.get("ml") != None:
                     logging.debug(f"Start echo worker. All clients connected.")
@@ -128,7 +141,7 @@ class Server:
             logging.debug("Registration complete.")
             self.clients["img"] = client
             for w in self.workers:
-                if w.getName == "recvImage_thread":
+                if w.getName() == "recvImage_thread":
                     w.start()
         elif data[0] == "REG" and data[1] == "ml":
             self.clients["ml"] = client
@@ -155,9 +168,15 @@ class Server:
         self._start_()
 
         logging.debug("Threads initialization...")
-        self.workers.append(threading.Thread(target=self._recvImageWorker_, args=(), name="recvImage_thread"))
+        t = threading.Thread(target=self._recvImageWorker_, args=(), name="recvImage_thread")
+        t.daemon = True
+        self.workers.append(t)
+
         #self.workers.append(threading.Thread(target=self._recvImageWorker_, args=(), name="recvPred_thread"))        
-        self.workers.append(threading.Thread(target=self._echoWorker_, args=(), name="echo_thread"))
+        t = threading.Thread(target=self._echoWorker_, args=(), name="echo_thread")
+        t.daemon = True
+        self.workers.append(t)
+
         t = threading.Thread(target=self._statusWorker_, args=(), name="status_thread")
         t.start()
         self.workers.append(t)
