@@ -1,6 +1,7 @@
 from classes.server import Server
 from classes.request import Request
 
+import configparser
 import signal
 
 class Controller:
@@ -12,7 +13,7 @@ class Controller:
         self.server.request(Request.Shutdown)
         exit(0)  
 
-    def __init__(self):
+    def __init__(self, host, port):
         super().__init__()
 
         signal.signal(signal.SIGINT, self.onShutdownRequest)
@@ -20,9 +21,7 @@ class Controller:
         self.register("imageServer", "unknown")
         self.register("mlServer", "unknown")
 
-        self.server = Server(("localhost", 50000))
-
-
+        self.server = Server(host, port)
 
     def register(self, key, value):
         self.status[key] = value
