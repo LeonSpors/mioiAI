@@ -4,9 +4,9 @@ from classes.video import Video
 def run():
     client = Client(("localhost", 50000))
     ret = client.connect(3)
-    #client.register()
 
     if ret is True:
+        client.register()        
         video = Video(client)
         video.run()
 

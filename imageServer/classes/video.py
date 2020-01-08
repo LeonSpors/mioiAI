@@ -20,7 +20,7 @@ class Video:
         while True:
             ret, frame = self.v.read()
             if ret is True:
-                if curr_frame % (fps/10) == 0: # each third frame
+                if curr_frame % (1) == 0: # each third frame
                     # Resize
                     res = cv2.resize(frame, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
 
