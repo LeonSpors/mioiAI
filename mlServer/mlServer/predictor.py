@@ -35,7 +35,7 @@ class Predictor:
         self.data[0] = normalized_image_array
         
         # run the inference
-        prediction = self.model.predict(self.data, use_multiprocessing=True, verbose=False)
+        return prediction = self.model.predict(self.data, use_multiprocessing=True, verbose=False)
         
 
         # debug information

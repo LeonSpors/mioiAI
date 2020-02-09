@@ -43,7 +43,9 @@ class Client:
                 data = np.frombuffer(stringData, dtype='uint8')
 
                 decimg = cv2.imdecode(data, 1)
-                predictor.predict(decimg)
+                p = predictor.predict(decimg)
                 
+                SocketHelper.send(self.sock, data, True, True)
+
                 cv2.imshow("preview", decimg)
                 cv2.waitKey(1)
