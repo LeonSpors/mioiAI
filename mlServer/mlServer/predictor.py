@@ -27,7 +27,7 @@ class Predictor:
         # determined by the first position in the shape tuple, in this case 1.
         self.data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
-        self.history = [None for i in range(20)]
+        self.history = [None for i in range(40)]
 
     def predict(self, image, sock):
         image_array = np.asarray(image)
@@ -37,14 +37,24 @@ class Predictor:
         self.data[0] = normalized_image_array
         
         # run the inference
-        pred = self.model.predict(self.data, use_multiprocessing=True, verbose=False)        
-
+        pred = self.model.predict(self.data, use_multiprocessing=True, verbose=False)
+        
         # debug information
-        self.history.append(np.argmax(pred))
         self.history.pop(0)
 
+        if pred[0][0] > pred[0][1]:
+            self.history.append(0)
+        else:
+            self.history.append(1)
+            
+
+        #self.history.append(p.index(max(p)))
+        print(self.history)
+
         if len(dict.fromkeys(self.history)) == 1:          
-            try:
-                SocketHelper.send(sock, self.history, True, True)
-            except socket.timeout:
-                exit(1)
+            if self.history[0] != None:
+                try:
+                    SocketHelper.send(sock, str(self.history[0]), True, True)
+                    self.history = [None for i in range(40)]
+                except socket.timeout:
+                    exit(0)
