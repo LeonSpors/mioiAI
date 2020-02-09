@@ -15,7 +15,7 @@ class Client:
                 self.sock.connect(self.addr)
                 return True
             except Exception as e:
-                print(f"{e}. Retry.")
+                print("Retry.")
         
         return False
 
