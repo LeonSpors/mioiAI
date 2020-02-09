@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import os
+import socket
 
 from PIL import Image
 from gesture import Gesture
@@ -43,4 +44,7 @@ class Predictor:
         self.history.pop(0)
 
         if len(dict.fromkeys(self.history)) == 1:          
-            SocketHelper.send(sock, self.history, True, True)
+            try:
+                SocketHelper.send(sock, self.history, True, True)
+            except socket.timeout:
+                exit(1)
