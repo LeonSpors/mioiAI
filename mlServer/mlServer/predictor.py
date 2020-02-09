@@ -35,10 +35,10 @@ class Predictor:
         self.data[0] = normalized_image_array
         
         # run the inference
-        self.model.predict(self.data, use_multiprocessing=True, verbose=False)        
+        pred = self.model.predict(self.data, use_multiprocessing=True, verbose=False)        
 
         # debug information
-        self.history.append(np.argmax(prediction))
+        self.history.append(np.argmax(pred))
         self.history.pop(0)
 
         if len(dict.fromkeys(self.history)) == 1:          
