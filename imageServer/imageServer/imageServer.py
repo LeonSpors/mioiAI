@@ -1,16 +1,17 @@
-from classes.client import Client
-from classes.video import Video
+from client import Client
+from video import Video
 
 import configparser
 
 def run():
     config = configparser.ConfigParser()
-    config.read("settings.ini")
+    config.read("../data/settings.ini")
 
     host = config.get("Client", "Host")
     port = config.get("Client", "Port")
 
-    client = Client(host, port)
+
+    client = Client((host, int(port)))
     ret = client.connect(3)
 
     if ret is True:

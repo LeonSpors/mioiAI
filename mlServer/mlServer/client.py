@@ -2,9 +2,12 @@ import socket
 import numpy as np
 import cv2
 
+from socketHelper import SocketHelper
+
 class Client:
     addr = None
     sock = None
+
 
     def __init__(self, address):
         self.addr = address
@@ -21,18 +24,9 @@ class Client:
         return False
 
     def register(self):
-        self.sock.sendall("REG ml".ljust(8).encode("ascii"))
+        self.sock.sendall("Registration 1".encode("ascii"))
         f = self.sock.makefile()
         f.flush()
-
-    def recvall(self, count):
-        buf = b''
-        while count:
-            newbuf = self.sock.recv(count)
-            if not newbuf: return None
-            buf += newbuf
-            count -= len(newbuf)
-        return buf
 
     def close(self):
         self.sock.shutdown(socket.SHUT_RDWR)
@@ -40,12 +34,16 @@ class Client:
 
     def run(self, predictor):
         while True:
-            length = self.recvall(16)
-            stringData = self.recvall(int(length))
-            data = np.frombuffer(stringData, dtype='uint8')
-
-            decimg = cv2.imdecode(data, 1)
-            predictor.predict(decimg)
+            length = SocketHelper.recv(self.sock, 16)
             
-            cv2.imshow("preview", decimg)
-            cv2.waitKey(1)
+            if length != None:
+                length = length.decode("ascii")
+
+                stringData = SocketHelper.recv(self.sock, int(length))
+                data = np.frombuffer(stringData, dtype='uint8')
+
+                decimg = cv2.imdecode(data, 1)
+                predictor.predict(decimg)
+                
+                cv2.imshow("preview", decimg)
+                cv2.waitKey(1)

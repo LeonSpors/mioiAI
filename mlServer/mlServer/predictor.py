@@ -2,7 +2,7 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 import os
-from classes.gesture import Gesture
+from gesture import Gesture
 
 class Predictor:
     model = None
@@ -35,7 +35,7 @@ class Predictor:
         
         # run the inference
         prediction = self.model.predict(self.data, use_multiprocessing=True, verbose=False)
-        print(prediction)
+        
 
         # debug information
         # self.history.append(np.argmax(prediction))

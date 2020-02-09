@@ -11,6 +11,7 @@ class Client:
     def connect(self, n):
         for retry in range(0, n):
             try:
+                print(self.addr)
                 self.sock.connect(self.addr)
                 return True
             except Exception as e:
@@ -19,7 +20,7 @@ class Client:
         return False
 
     def register(self):
-        self.sock.sendall("REG img".ljust(8).encode("ascii"))
+        self.sock.sendall("Registration 0".encode("ascii"))
         f = self.sock.makefile()
         f.flush()
 
