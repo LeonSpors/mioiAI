@@ -31,7 +31,12 @@ class Worker(threading.Thread):
         t = threading.Thread(target=self.sender)
         t.start()
         self.workerThreads.append(t)
-        
+
+        t = threading.Thread(target=self.predrecviever)
+        t.start()
+        self.workerThreads.append(t)
+
+    # From Video Server    
     def recviever(self):
         self.logger.debug("Reciever started.")
 
@@ -53,6 +58,7 @@ class Worker(threading.Thread):
                             stringData = SocketHelper.recv(client.sock, int(length))
 
                             if stringData != None:
+                                #self.logger.debug(stringData)
                                 self.pipeline.put(stringData, block=False)
                     except socket.timeout:
                         client.dead = True
@@ -61,6 +67,40 @@ class Worker(threading.Thread):
             time.sleep(1/40)
         self.logger.debug("Reciever stopped.")
 
+    # From Pred Server
+    def predrecviever(self):
+        self.logger.debug("Predreciever started.")
+
+        while not self.stopRequest:
+            client = None
+            if len(self.clients) > 0:
+                clientId = Client.find(self.clients, 1)
+                
+                if clientId != None:
+                    client = self.clients[clientId]
+
+            if client != None:
+                #print(client.dead)
+
+                while not client.dead:
+                    try:
+                        length = SocketHelper.recv(client.sock, 16)
+                        if length != None:
+                            print(length)       
+                            stringData = SocketHelper.recv(client.sock, int(length))
+                            print(stringData)
+                            if stringData != None:
+                                data = int(stringData.decode("ascii"))
+                                self.doAction(data)
+                    except socket.timeout:
+                        client.dead = True
+            
+            Client.cleanup(self.clients)
+            time.sleep(1/40)
+
+        self.logger.debug("Predreciever stopped.")
+
+    # To Pred Server
     def sender(self):
         self.logger.debug("Sender started.")
 
@@ -78,7 +118,7 @@ class Worker(threading.Thread):
 
                     if item != None:
                         try:
-                            SocketHelper.send(client, item, True)
+                            SocketHelper.send(client.sock, item, True)
                         except socket.timeout:
                             client.dead = True
 
@@ -87,4 +127,6 @@ class Worker(threading.Thread):
             Client.cleanup(self.clients)
             time.sleep(1/40)
         self.logger.debug("Sender stopped.")
-    
+
+    def doAction(self, id):
+        print(id)    

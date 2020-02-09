@@ -44,6 +44,8 @@ class Client:
             logger.warn("Illegal registration.")
 
     def cleanup(clients):
+        logger = logging.getLogger("client")
         for client in clients:
             if client.dead:
                 clients.remove(client)
+                logger.debug(f"ID={client.id} TYPE={client.typeid} died")

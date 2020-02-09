@@ -32,7 +32,7 @@ class Server:
         while True:
             try:
                 (conn, addr) = serversocket.accept()
-                conn.settimeout(1)
+                conn.settimeout(60)
 
                 Client.verify(self.clients, conn)
             except socket.timeout:

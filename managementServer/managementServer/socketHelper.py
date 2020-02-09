@@ -23,7 +23,6 @@ class SocketHelper():
 
     @staticmethod
     def send(sock, data, lenBefore=False):
-        print((str(len(data)).ljust(16)).encode("ascii"))
         try:
             if lenBefore:
                 sock.send((str(len(data)).ljust(16)).encode("ascii"))
