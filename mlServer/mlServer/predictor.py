@@ -4,6 +4,7 @@ import os
 
 from PIL import Image
 from gesture import Gesture
+from socketHelper import SocketHelper
 
 class Predictor:
     model = None
