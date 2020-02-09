@@ -27,7 +27,7 @@ class Predictor:
 
         #self.history = [None for i in range(20)]
 
-    def predict(self, image):
+    def predict(self, image, sock):
         image_array = np.asarray(image)
         normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
 
@@ -35,13 +35,11 @@ class Predictor:
         self.data[0] = normalized_image_array
         
         # run the inference
-        return prediction = self.model.predict(self.data, use_multiprocessing=True, verbose=False)
-        
+        self.model.predict(self.data, use_multiprocessing=True, verbose=False)        
 
         # debug information
-        # self.history.append(np.argmax(prediction))
-        # self.history.pop(0)
-        # print(self.history)
+        self.history.append(np.argmax(prediction))
+        self.history.pop(0)
 
-        # if len(dict.fromkeys(self.history)) == 1:          
-        #     print(Gesture(self.history[0]))
+        if len(dict.fromkeys(self.history)) == 1:          
+            SocketHelper.send(sock, self.history, True, True)

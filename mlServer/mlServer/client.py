@@ -8,10 +8,9 @@ class Client:
     addr = None
     sock = None
 
-
     def __init__(self, address):
         self.addr = address
-        self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM) 
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def connect(self, n):
         for retry in range(0, n):
@@ -43,9 +42,7 @@ class Client:
                 data = np.frombuffer(stringData, dtype='uint8')
 
                 decimg = cv2.imdecode(data, 1)
-                p = predictor.predict(decimg)
-                
-                SocketHelper.send(self.sock, data, True, True)
+                predictor.predict(decimg, self.sock)
 
                 cv2.imshow("preview", decimg)
                 cv2.waitKey(1)
