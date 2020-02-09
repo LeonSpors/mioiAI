@@ -5,4 +5,4 @@ WORKDIR /home/service
 
 RUN pip install -r requirements.txt
 
-CMD [ "python", "./app.py" ]
+CMD [ "python", "./imageServer/imageServer.py" ]
