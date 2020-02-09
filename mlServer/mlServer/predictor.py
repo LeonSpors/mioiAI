@@ -25,7 +25,7 @@ class Predictor:
         # determined by the first position in the shape tuple, in this case 1.
         self.data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
-        #self.history = [None for i in range(20)]
+        self.history = [None for i in range(20)]
 
     def predict(self, image, sock):
         image_array = np.asarray(image)
